@@ -11,4 +11,4 @@ ini_set('display_errors', true);
 //Composer
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-define('FIXTURE_DIRECTORY', __DIR__ . '/Files/fixtures/');
+define('FIXTURE_DIRECTORY', __DIR__ . '/Streams/fixtures/');

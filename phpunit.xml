@@ -11,7 +11,7 @@
          stopOnFailure="false"
          stopOnError="false">
     <testsuites>
-        <testsuite name="Spiral Framework: Core tests">
+        <testsuite name="PSR-7 Stream Wrappers">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>

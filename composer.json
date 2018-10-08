@@ -1,0 +1,27 @@
+{
+  "name": "spiral/streams",
+  "type": "library",
+  "description": "Virtual file streams",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Wolfy-J",
+      "email": "wolfy.jd@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "psr/http-message": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~7.0",
+    "spiral/files": "^1.0",
+    "mockery/mockery": "^1.1",
+    "zendframework/zend-diactoros": "^1.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Spiral\\Streams\\": "src/"
+    }
+  }
+}

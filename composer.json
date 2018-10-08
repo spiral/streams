@@ -1,7 +1,7 @@
 {
   "name": "spiral/streams",
   "type": "library",
-  "description": "Virtual file streams",
+  "description": "PSR-7 Stream Wrappers",
   "license": "MIT",
   "authors": [
     {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Spiral Framework.
  *
@@ -16,9 +16,7 @@ use Spiral\Streams\Exception\WrapperException;
  */
 class StreamWrapper
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private static $registered = false;
 
     /**
@@ -28,9 +26,7 @@ class StreamWrapper
      */
     private static $uris = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $modes = [
         'r'   => 33060,
         'rb'  => 33060,
@@ -40,14 +36,10 @@ class StreamWrapper
         'wb'  => 33188
     ];
 
-    /**
-     * @var StreamInterface
-     */
+    /** @var StreamInterface */
     private $stream = null;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $mode = 0;
 
     /**
@@ -70,9 +62,9 @@ class StreamWrapper
     /**
      * Open pre-mocked StreamInterface by it's unique uri.
      *
-     * @param string $path
-     * @param int    $mode
-     * @param int    $options
+     * @param string  $path
+     * @param int     $mode
+     * @param int     $options
      * @param string &$opened_path
      *
      * @return bool

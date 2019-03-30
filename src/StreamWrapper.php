@@ -269,7 +269,7 @@ class StreamWrapper
 
     /**
      * Free uri dedicated to specified StreamInterface. Method is useful for long living
-     * applications.
+     * applications. You must close resource by yourself!
      *
      * @param string|StreamInterface $file String uri or StreamInterface.
      */

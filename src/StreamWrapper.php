@@ -66,7 +66,6 @@ class StreamWrapper
      * @param int     $mode
      * @param int     $options
      * @param string &$opened_path
-     *
      * @return bool
      */
     public function stream_open($path, $mode, $options, &$opened_path)
@@ -87,7 +86,6 @@ class StreamWrapper
      * Read data from StreamInterface.
      *
      * @param int $count
-     *
      * @return string
      */
     public function stream_read($count)
@@ -100,7 +98,6 @@ class StreamWrapper
      *
      * @param int $offset
      * @param int $whence = SEEK_SET
-     *
      * @return bool
      */
     public function stream_seek($offset, $whence = SEEK_SET)
@@ -151,10 +148,8 @@ class StreamWrapper
      * Get stats based on wrapped StreamInterface by it's mocked uri.
      *
      * @see stat()
-     *
      * @param string $path
      * @param int    $flags
-     *
      * @return array|null
      */
     public function url_stat($path, $flags)
@@ -170,7 +165,6 @@ class StreamWrapper
      * Helper method used to correctly resolve StreamInterface stats.
      *
      * @param StreamInterface $stream
-     *
      * @return array
      */
     private function getStreamStats(StreamInterface $stream)
@@ -217,40 +211,26 @@ class StreamWrapper
     }
 
     /**
-     * Register StreamInterface and get unique url for it.
+     * Check if given uri or stream has been allocated.
      *
-     * @param StreamInterface $stream
-     *
-     * @return string
-     */
-    public static function localFilename(StreamInterface $stream)
-    {
-        self::register();
-
-        $uri = 'spiral://' . spl_object_hash($stream);
-        self::$uris[$uri] = $stream;
-
-        return $uri;
-    }
-
-    /**
-     * Check if given uri points to one of wrapped streams.
-     *
-     * @param string $uri
-     *
+     * @param string|StreamInterface $file
      * @return bool
      */
-    public static function isWrapped($uri)
+    public static function has($file)
     {
-        return isset(self::$uris[$uri]);
+        if ($file instanceof StreamInterface) {
+            $file = 'spiral://' . spl_object_hash($file);
+        }
+
+        return isset(self::$uris[$file]);
     }
 
     /**
      * Create StreamInterface associated resource.
      *
      * @param StreamInterface $stream
-     *
      * @return resource
+     *
      * @throws WrapperException
      */
     public static function getResource(StreamInterface $stream)
@@ -268,21 +248,37 @@ class StreamWrapper
             throw new WrapperException("Stream is not available in read or write modes");
         }
 
-        return fopen(self::localFilename($stream), $mode);
+        return fopen(self::getFilename($stream), $mode);
+    }
+
+    /**
+     * Register StreamInterface and get unique url for it.
+     *
+     * @param StreamInterface $stream
+     * @return string
+     */
+    public static function getFilename(StreamInterface $stream)
+    {
+        self::register();
+
+        $uri = 'spiral://' . spl_object_hash($stream);
+        self::$uris[$uri] = $stream;
+
+        return $uri;
     }
 
     /**
      * Free uri dedicated to specified StreamInterface. Method is useful for long living
      * applications.
      *
-     * @param string|StreamInterface $uri String uri or StreamInterface.
+     * @param string|StreamInterface $file String uri or StreamInterface.
      */
-    public static function releaseUri($uri)
+    public static function release($file)
     {
-        if ($uri instanceof StreamInterface) {
-            $uri = 'spiral://' . spl_object_hash($uri);
+        if ($file instanceof StreamInterface) {
+            $file = 'spiral://' . spl_object_hash($file);
         }
 
-        unset(self::$uris[$uri]);
+        unset(self::$uris[$file]);
     }
 }

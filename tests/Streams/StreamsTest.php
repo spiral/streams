@@ -34,7 +34,7 @@ class StreamsTest extends TestCase
         $stream = new Stream('php://memory', 'rw');
         $stream->write("sample text");
 
-        $filename = StreamWrapper::localFilename($stream);
+        $filename = StreamWrapper::getFilename($stream);
 
         $this->assertFileExists($filename);
         $this->assertSame(strlen('sample text'), filesize($filename));
@@ -52,8 +52,8 @@ class StreamsTest extends TestCase
         $this->assertSame(strlen('sample text'), filesize($newFilename));
         $this->assertSame(md5('sample text'), md5_file($newFilename));
 
-        $this->assertTrue(StreamWrapper::isWrapped($filename));
-        $this->assertFalse(StreamWrapper::isWrapped($newFilename));
+        $this->assertTrue(StreamWrapper::has($filename));
+        $this->assertFalse(StreamWrapper::has($newFilename));
     }
 
     public function testGetResource()
@@ -61,7 +61,9 @@ class StreamsTest extends TestCase
         $stream = new Stream('php://memory', 'rw');
         $stream->write("sample text");
 
+        $this->assertFalse(StreamWrapper::has($stream));
         $resource = StreamWrapper::getResource($stream);
+        $this->assertTrue(StreamWrapper::has($stream));
 
         $this->assertInternalType('resource', $resource);
         $this->assertSame('sample text', stream_get_contents($resource, -1, 0));
@@ -93,12 +95,12 @@ class StreamsTest extends TestCase
     public function testWriteIntoStream()
     {
         $stream = new Stream(fopen('php://temp', 'wr+'), 'wr+');
-        $file = StreamWrapper::localFilename($stream);
+        $file = StreamWrapper::getFilename($stream);
 
         file_put_contents($file, 'test');
 
         $this->assertSame('test', file_get_contents($file));
 
-        StreamWrapper::releaseUri($file);
+        StreamWrapper::release($file);
     }
 }

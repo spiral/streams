@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\Streams;
 
@@ -14,7 +15,7 @@ use Spiral\Streams\Exception\WrapperException;
 /**
  * Spiral converter of PSR-7 streams to virtual filenames. Static as hell.
  */
-class StreamWrapper
+final class StreamWrapper
 {
     /** @var bool */
     private static $registered = false;

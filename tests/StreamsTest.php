@@ -61,7 +61,9 @@ class StreamsTest extends TestCase
         self::assertSame('sample', \stream_get_contents($resource, 6, 0));
     }
 
-    #[\PHPUnit\Framework\Attributes\RequiresPhp('< 8.0')]
+    /**
+     * @requires PHP < 8.0
+     */
     public function testException(): void
     {
         try {
@@ -77,7 +79,9 @@ class StreamsTest extends TestCase
         }
     }
 
-    #[\PHPUnit\Framework\Attributes\RequiresPhp('>= 8.0')]
+    /**
+     * @requires PHP >= 8.0
+     */
     public function testExceptionPHP8(): void
     {
         try {

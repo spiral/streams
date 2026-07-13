@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Spiral\Tests\Streams;
 
 use PHPUnit\Framework\TestCase;
@@ -10,110 +8,114 @@ use Spiral\Files\FilesInterface;
 use Spiral\Streams\StreamWrapper;
 use Nyholm\Psr7\Stream;
 
-final class StreamsTest extends TestCase
+class StreamsTest extends TestCase
 {
     private const FIXTURE_DIRECTORY = __DIR__ . '/fixtures';
 
-    public function testGetUri(): void
+    public function setUp(): void
+    {
+        $files = new Files();
+        $files->ensureDirectory(self::FIXTURE_DIRECTORY, FilesInterface::RUNTIME);
+    }
+
+    public function tearDown(): void
+    {
+        $files = new Files();
+        $files->deleteDirectory(self::FIXTURE_DIRECTORY, true);
+    }
+
+    public function testGetUri()
     {
         $stream = Stream::create();
         $stream->write('sample text');
 
         $filename = StreamWrapper::getFilename($stream);
 
-        self::assertFileExists($filename);
-        self::assertSame(\strlen('sample text'), \filesize($filename));
-        self::assertSame(\md5('sample text'), \md5_file($filename));
+        $this->assertFileExists($filename);
+        $this->assertSame(strlen('sample text'), filesize($filename));
+        $this->assertSame(md5('sample text'), md5_file($filename));
 
         $newFilename = self::FIXTURE_DIRECTORY . '/test.txt';
-        \copy($filename, $newFilename);
+        copy($filename, $newFilename);
 
-        self::assertFileExists($newFilename);
-        self::assertSame(\strlen('sample text'), \filesize($newFilename));
-        self::assertSame(\md5('sample text'), \md5_file($newFilename));
+        $this->assertFileExists($newFilename);
+        $this->assertSame(strlen('sample text'), filesize($newFilename));
+        $this->assertSame(md5('sample text'), md5_file($newFilename));
 
         //Rewinding
-        self::assertFileExists($newFilename);
-        self::assertSame(\strlen('sample text'), \filesize($newFilename));
-        self::assertSame(\md5('sample text'), \md5_file($newFilename));
+        $this->assertFileExists($newFilename);
+        $this->assertSame(strlen('sample text'), filesize($newFilename));
+        $this->assertSame(md5('sample text'), md5_file($newFilename));
 
-        self::assertTrue(StreamWrapper::has($filename));
-        self::assertFalse(StreamWrapper::has($newFilename));
+        $this->assertTrue(StreamWrapper::has($filename));
+        $this->assertFalse(StreamWrapper::has($newFilename));
     }
 
-    public function testGetResource(): void
+    public function testGetResource()
     {
         $stream = Stream::create();
         $stream->write('sample text');
 
-        self::assertFalse(StreamWrapper::has($stream));
+        $this->assertFalse(StreamWrapper::has($stream));
         $resource = StreamWrapper::getResource($stream);
-        self::assertTrue(StreamWrapper::has($stream));
+        $this->assertTrue(StreamWrapper::has($stream));
 
-        self::assertIsResource($resource);
-        self::assertSame('sample text', \stream_get_contents($resource, -1, 0));
+        $this->assertIsResource($resource);
+        $this->assertSame('sample text', stream_get_contents($resource, -1, 0));
 
         //Rewinding
-        self::assertSame('sample text', \stream_get_contents($resource, -1, 0));
+        $this->assertSame('sample text', stream_get_contents($resource, -1, 0));
 
-        \fseek($resource, 7);
-        self::assertSame('text', \stream_get_contents($resource, -1));
-        self::assertSame('sample', \stream_get_contents($resource, 6, 0));
+        fseek($resource, 7);
+        $this->assertSame('text', stream_get_contents($resource, -1));
+        $this->assertSame('sample', stream_get_contents($resource, 6, 0));
     }
 
-    #[\PHPUnit\Framework\Attributes\RequiresPhp('< 8.0')]
-    public function testException(): void
+    /**
+     * @requires PHP < 8.0
+     */
+    public function testException()
     {
         try {
-            \fopen('spiral://non-exists', 'rb');
+            fopen('spiral://non-exists', 'rb');
         } catch (\Throwable $e) {
-            self::assertStringContainsString('failed to open stream', $e->getMessage());
+            $this->assertStringContainsString('failed to open stream', $e->getMessage());
         }
 
         try {
-            \filemtime('spiral://non-exists');
+            filemtime('spiral://non-exists');
         } catch (\Throwable $e) {
-            self::assertStringContainsString('stat failed', $e->getMessage());
-        }
-    }
-
-    #[\PHPUnit\Framework\Attributes\RequiresPhp('>= 8.0')]
-    public function testExceptionPHP8(): void
-    {
-        try {
-            \fopen('spiral://non-exists', 'rb');
-        } catch (\Throwable $e) {
-            self::assertStringContainsString('Failed to open stream', $e->getMessage());
-        }
-
-        try {
-            \filemtime('spiral://non-exists');
-        } catch (\Throwable $e) {
-            self::assertStringContainsString('stat failed', $e->getMessage());
+            $this->assertStringContainsString('stat failed', $e->getMessage());
         }
     }
 
-    public function testWriteIntoStream(): void
+    /**
+     * @requires PHP >= 8.0
+     */
+    public function testExceptionPHP8()
     {
-        $stream = Stream::create(\fopen('php://temp', 'wrb+'));
+        try {
+            fopen('spiral://non-exists', 'rb');
+        } catch (\Throwable $e) {
+            $this->assertStringContainsString('Failed to open stream', $e->getMessage());
+        }
+
+        try {
+            filemtime('spiral://non-exists');
+        } catch (\Throwable $e) {
+            $this->assertStringContainsString('stat failed', $e->getMessage());
+        }
+    }
+
+    public function testWriteIntoStream()
+    {
+        $stream = Stream::create(fopen('php://temp', 'wrb+'));
         $file = StreamWrapper::getFilename($stream);
 
-        \file_put_contents($file, 'test');
+        file_put_contents($file, 'test');
 
-        self::assertSame('test', \file_get_contents($file));
+        $this->assertSame('test', file_get_contents($file));
 
         StreamWrapper::release($file);
-    }
-
-    protected function setUp(): void
-    {
-        $files = new Files();
-        $files->ensureDirectory(self::FIXTURE_DIRECTORY, FilesInterface::RUNTIME);
-    }
-
-    protected function tearDown(): void
-    {
-        $files = new Files();
-        $files->deleteDirectory(self::FIXTURE_DIRECTORY, true);
     }
 }
